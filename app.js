@@ -11,7 +11,7 @@ function isSupabaseConfigured() {
 
 const choices = {};
 const urlParams = new URLSearchParams(window.location.search);
-const linkId = urlParams.get('linkId') || `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+const linkId = urlParams.get('linkId') || `link-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
 let supabase = null;
 if (isSupabaseConfigured()) {
@@ -23,17 +23,17 @@ function selectOption(key, val) {
 }
 
 function renderShareLink() {
-  const shareLink = `https://wannadate.site/?linkId=${linkId}`;
+  const shareLink = `${window.location.origin}${window.location.pathname}?linkId=${linkId}`;
   const shareLinkEl = document.getElementById('share-link');
   if (shareLinkEl) shareLinkEl.textContent = shareLink;
 }
 
 function copyToClipboard() {
-  const shareLink = `https://wannadate.site/?linkId=${linkId}`;
+  const shareLink = `${window.location.origin}${window.location.pathname}?linkId=${linkId}`;
   navigator.clipboard.writeText(shareLink).then(() => {
     const statusEl = document.getElementById('status');
     if (statusEl) {
-      statusEl.textContent = 'Link copied to clipboard! 💖';
+      statusEl.textContent = 'Link copied! 💖';
       statusEl.classList.add('success');
       statusEl.classList.remove('error');
       setTimeout(() => {
@@ -55,13 +55,13 @@ function nextStep(step) {
 
     if (choices.ride && choices.ride.includes('Metro')) {
       rideIcon.textContent = '🚇👯‍♀️';
-      rideText.textContent = 'Anime besties cruising together in the Metro!';
+      rideText.textContent = 'We are cruising together in the Metro!';
     } else if (choices.ride && choices.ride.includes('Bus')) {
       rideIcon.textContent = '🚌👯‍♀️';
-      rideText.textContent = 'Anime besties enjoying the window seats on the Bus!';
+      rideText.textContent = 'Window seats and sweet smiles on the Bus!';
     } else {
       rideIcon.textContent = '🛵💨👧👧';
-      rideText.textContent = 'Anime besties zooming together on the Scooter!';
+      rideText.textContent = 'Zooming through our adventure together!';
     }
   }
 
@@ -71,9 +71,9 @@ function nextStep(step) {
       <li><b>📅 Date:</b> ${choices.date || 'Selected Day'}</li>
       <li><b>🎈 Main Vibe:</b> ${choices.activity || 'Surprise'}</li>
       <li><b>🚀 Travel:</b> ${choices.ride || 'Metro/Scooter'}</li>
-      <li><b>🍳 Breakfast:</b> ${choices.breakfast || 'Yummy food'}</li>
-      <li><b>🍱 Lunch:</b> ${choices.lunch || 'Princess Choice'}</li>
-      <li><b>🍰 Evening Snacks:</b> ${choices.snacks || 'Tea & Treats'}</li>
+      <li><b>🍳 Breakfast:</b> ${choices.breakfast || 'Breakfast choice'}</li>
+      <li><b>🍱 Lunch:</b> ${choices.lunch || 'Lunch choice'}</li>
+      <li><b>🍰 Evening Treats:</b> ${choices.snacks || 'Tea & Snacks'}</li>
     `;
     renderShareLink();
   }
@@ -98,47 +98,47 @@ async function saveResponse() {
   const personName = document.getElementById('personName')?.value || 'Guest';
 
   if (!choices.date || !choices.activity || !choices.ride || !choices.breakfast || !choices.lunch || !choices.snacks) {
-    statusEl.textContent = 'Please complete all the date choices first.';
+    statusEl.textContent = 'Please complete all the choices first.';
     statusEl.classList.add('error');
     return;
   }
 
-  try {
-    const payload = {
-      link_id: linkId,
-      person_name: personName,
+  const payload = {
+    link_id: linkId,
+    person_name: personName,
+    date: choices.date,
+    activity: choices.activity,
+    ride: choices.ride,
+    breakfast: choices.breakfast,
+    lunch: choices.lunch,
+    snacks: choices.snacks,
+    created_at: new Date().toISOString(),
+    reply_summary: JSON.stringify({
       date: choices.date,
       activity: choices.activity,
       ride: choices.ride,
       breakfast: choices.breakfast,
       lunch: choices.lunch,
-      snacks: choices.snacks,
-      created_at: new Date().toISOString(),
-      reply_summary: JSON.stringify({
-        date: choices.date,
-        activity: choices.activity,
-        ride: choices.ride,
-        breakfast: choices.breakfast,
-        lunch: choices.lunch,
-        snacks: choices.snacks
-      })
-    };
+      snacks: choices.snacks
+    })
+  };
 
+  try {
     localStorage.setItem(`response-${linkId}`, JSON.stringify(payload));
 
     if (supabase) {
       const { error } = await supabase.from('responses').upsert(payload, { onConflict: 'link_id' });
       if (error) throw error;
-      statusEl.textContent = 'Your reply has been saved to the live database! 💖';
+      statusEl.textContent = 'Saved successfully to the live database! 💖';
     } else {
-      statusEl.textContent = 'Your reply has been saved locally for now. Add Supabase credentials to enable live tracking.';
+      statusEl.textContent = 'Saved locally. Add Supabase credentials to enable live replies.';
     }
 
     statusEl.classList.remove('error');
     statusEl.classList.add('success');
   } catch (error) {
     console.error(error);
-    statusEl.textContent = 'Something went wrong while saving the reply.';
+    statusEl.textContent = 'Something went wrong while saving.';
     statusEl.classList.add('error');
     statusEl.classList.remove('success');
   }
@@ -146,35 +146,3 @@ async function saveResponse() {
 
 document.getElementById('save-response-btn')?.addEventListener('click', saveResponse);
 renderShareLink();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

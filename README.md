@@ -1,23 +1,17 @@
-# Wanna Date App
+# Adithya & Reshma - Let's Plan Our Date
 
-This project creates a romantic date-planner page with a shareable link and live response tracking.
+A romantic date-planning website for Adithya and Reshma with a shareable link and reply tracking.
 
-## What it includes
-- A romantic multi-step date planner
-- A unique shareable link per invite (`?linkId=...`)
-- A live Supabase-backed response store when credentials are added
-- A local backup using `localStorage` if Supabase is not configured yet
-- An admin page to view all saved replies
-
-## Files
-- `index.html` — the date planner page
-- `app.js` — save logic and share-link logic
-- `admin.html` — view saved response data
-- `config.js` — Supabase credentials
+## What it does
+- Multi-step playful date planning flow
+- Shareable link with `?linkId=...`
+- Response saving in localStorage by default
+- Optional live saving via Supabase when credentials are added
+- Admin page to see the saved choices
 
 ## Setup
 1. Create a free Supabase project at https://supabase.com
-2. In the Supabase SQL editor, create this table:
+2. Run this SQL in the Supabase SQL editor:
 
 ```sql
 create table public.responses (
@@ -43,15 +37,13 @@ create policy "Allow public select" on public.responses
 for select using (true);
 ```
 
-3. Open `config.js` and replace the placeholders with your real values.
-4. Upload the project to GitHub Pages, Netlify, Vercel, or any static host.
-5. Share links in the format:
-   `https://wannadate.site/?linkId=your-name`
-6. View replies here:
-   `https://your-site-url/admin.html?linkId=your-name`
+3. Replace the placeholders in `config.js` with your actual Supabase URL and anon key.
+4. Deploy the site on GitHub Pages, Netlify, or Vercel.
+5. Share a link like:
+   `https://your-site-url/?linkId=reshma`
+6. Open the admin page here:
+   `https://your-site-url/admin.html?linkId=reshma`
 
-## Note
-The app is already set up to work with a custom domain like `wannadate.site` once your hosting is pointing there. The actual domain must be configured by your DNS/hosting provider.
-
-## Important
-If no real Supabase URL and anon key are present, the app falls back to `localStorage` only.
+## Notes
+- If you do not add Supabase credentials, the app will keep using localStorage for saving responses.
+- The site is already styled and personalized to Adithya & Reshma.

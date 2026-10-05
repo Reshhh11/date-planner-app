@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wanna Date Admin</title>
+  <title>Adithya & Reshma Admin</title>
   <style>
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
     body {
@@ -46,8 +46,8 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>Wanna Date Admin</h1>
-    <p class="small">View saved date answers from the share link.</p>
+    <h1>Adithya & Reshma Admin</h1>
+    <p class="small">View saved date choices and replies.</p>
     <div id="responses" class="list"></div>
   </div>
 
@@ -81,7 +81,7 @@
 
         const { data, error } = await query;
         if (error) {
-          container.innerHTML = `<p class="empty">Error loading live responses: ${error.message}</p>`;
+          container.innerHTML = `<p class="empty">Error loading responses: ${error.message}</p>`;
           return;
         }
         rows = data || [];
@@ -94,14 +94,14 @@
       }
 
       if (!rows.length) {
-        container.innerHTML = '<p class="empty">No responses yet.</p>';
+        container.innerHTML = '<p class="empty">No replies yet.</p>';
         return;
       }
 
       container.innerHTML = rows.map(item => `
         <div class="card">
           <div class="meta">${item.person_name || 'Guest'}</div>
-          <div class="small">Link ID: ${item.link_id || '—'}</div>
+          <div class="small">Link: ${item.link_id || '—'}</div>
           <div class="small">Date: ${item.date || '—'}</div>
           <div class="small">Activity: ${item.activity || '—'}</div>
           <div class="small">Travel: ${item.ride || '—'}</div>
