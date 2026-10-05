@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wanna Date Admin</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #ffe6fa 0%, #e0c3fc 50%, #8ec5fc 100%);
+      min-height: 100vh;
+      padding: 30px;
+      color: #4a3e3d;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(147,112,219,0.2);
+    }
+    h1 {
+      margin-bottom: 10px;
+      color: #6a1b9a;
+    }
+    .list {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e6d4ef;
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .meta {
+      font-weight: 600;
+      color: #6a1b9a;
+      margin-bottom: 10px;
+    }
+    .small { color: #666; font-size: 0.9rem; }
+    .empty { color: #666; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Wanna Date Admin</h1>
+    <p class="small">View saved date answers from the share link.</p>
+    <div id="responses" class="list"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script>
+    function isSupabaseConfigured() {
+      return (
+        typeof SUPABASE_URL !== 'undefined' &&
+        typeof SUPABASE_ANON_KEY !== 'undefined' &&
+        SUPABASE_URL &&
+        SUPABASE_ANON_KEY &&
+        !SUPABASE_URL.includes('YOUR_PROJECT_ID') &&
+        !SUPABASE_ANON_KEY.includes('YOUR_')
+      );
+    }
+
+    const qs = new URLSearchParams(window.location.search);
+    const linkId = qs.get('linkId');
+
+    async function loadResponses() {
+      const container = document.getElementById('responses');
+      if (!container) return;
+
+      let rows = [];
+
+      if (isSupabaseConfigured()) {
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let query = supabase.from('responses').select('*').order('created_at', { ascending: false });
+        if (linkId) query = query.eq('link_id', linkId);
+
+        const { data, error } = await query;
+        if (error) {
+          container.innerHTML = `<p class="empty">Error loading live responses: ${error.message}</p>`;
+          return;
+        }
+        rows = data || [];
+      }
+
+      if (!rows.length) {
+        const localRows = JSON.parse(localStorage.getItem('all-responses') || '[]');
+        const filtered = linkId ? localRows.filter(r => r.link_id === linkId) : localRows;
+        rows = filtered || [];
+      }
+
+      if (!rows.length) {
+        container.innerHTML = '<p class="empty">No responses yet.</p>';
+        return;
+      }
+
+      container.innerHTML = rows.map(item => `
+        <div class="card">
+          <div class="meta">${item.person_name || 'Guest'}</div>
+          <div class="small">Link ID: ${item.link_id || '—'}</div>
+          <div class="small">Date: ${item.date || '—'}</div>
+          <div class="small">Activity: ${item.activity || '—'}</div>
+          <div class="small">Travel: ${item.ride || '—'}</div>
+          <div class="small">Breakfast: ${item.breakfast || '—'}</div>
+          <div class="small">Lunch: ${item.lunch || '—'}</div>
+          <div class="small">Snacks: ${item.snacks || '—'}</div>
+          <div class="small">Saved: ${item.created_at || '—'}</div>
+        </div>
+      `).join('');
+    }
+
+    loadResponses();
+  </script>
+</body>
+</html>

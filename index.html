@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Special Date Planner</title>
+  <title>Wanna Date? 💖</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Fredoka', 'Outfit', sans-serif; }
@@ -42,9 +42,7 @@
     .btn:hover { transform: translateY(-3px) scale(1.02); box-shadow:0 12px 20px rgba(255,117,140,0.4); }
     .btn-alt { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); color:#2c3e50; box-shadow:0 8px 15px rgba(161,196,253,0.3); }
     .calendar-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin:20px 0; }
-    .calendar-day {
-      padding:12px 5px; background:#f8f0fc; border-radius:12px; cursor:pointer; font-weight:600; transition:.2s; border:1px solid #e1bee7;
-    }
+    .calendar-day { padding:12px 5px; background:#f8f0fc; border-radius:12px; cursor:pointer; font-weight:600; transition:.2s; border:1px solid #e1bee7; }
     .calendar-day:hover, .calendar-day.selected { background:#ab47bc; color:white; transform:scale(1.08); }
     .slide-btn {
       background:#8e24aa; color:white; padding:16px 28px; border-radius:50px; display:inline-flex; align-items:center; gap:12px; font-size:1.2rem; font-weight:bold; cursor:pointer; margin-top:20px; box-shadow:0 10px 20px rgba(142,36,170,0.3); transition:.3s;
@@ -59,7 +57,8 @@
     .summary-box li { margin-bottom:8px; list-style:none; }
     .status { margin-top: 16px; font-size: 0.95rem; color: #6a1b9a; font-weight: 600; }
     .status.error { color: #b00020; }
-    .tiny { font-size: 0.78rem; color:#7c7c7c; margin-top:10px; }
+    .status.success { color: #2e7d32; }
+    .tiny { font-size: 0.78rem; color:#7c7c7c; margin-top:10px; word-break: break-all; }
     .name-field {
       width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid #d9bce6; margin-bottom: 10px; font-size: 1rem;
     }
@@ -192,130 +191,129 @@
     <button class="btn" id="save-response-btn" style="margin-top: 18px; width: 100%;">Send my reply 💖</button>
     <div id="status" class="status"></div>
     <div class="tiny">
-      Invite link: <span id="share-link"></span>
-      <button class="copy-link-btn" onclick="copyToClipboard()">Copy</button>
+      Share this link: <span id="share-link" style="font-weight: bold; color: #6a1b9a;"></span>
+      <button class="copy-link-btn" onclick="copyToClipboard()">Copy Link</button>
     </div>
   </div>
 
-  <script>
-    const choices = {};
-    const urlParams = new URLSearchParams(window.location.search);
-    const linkId = urlParams.get('linkId') || `link-${crypto.randomUUID()}`;
-
-    function selectOption(key, val) {
-      choices[key] = val;
-    }
-
-    function renderShareLink() {
-      const shareLink = `${window.location.origin}${window.location.pathname}?linkId=${linkId}`;
-      const shareLinkEl = document.getElementById('share-link');
-      if (shareLinkEl) shareLinkEl.textContent = shareLink;
-    }
-
-    function copyToClipboard() {
-      const shareLink = `${window.location.origin}${window.location.pathname}?linkId=${linkId}`;
-      navigator.clipboard.writeText(shareLink).then(() => {
-        alert('Link copied to clipboard! 💖');
-      });
-    }
-
-    function nextStep(step) {
-      document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
-      const target = document.getElementById(`step-${step}`);
-      if (target) target.classList.remove('hidden');
-
-      if (step === 6) {
-        const rideIcon = document.getElementById('ride-icon');
-        const rideText = document.getElementById('ride-text');
-
-        if (choices.ride && choices.ride.includes('Metro')) {
-          rideIcon.textContent = '🚇👯‍♀️';
-          rideText.textContent = 'Anime besties cruising together in the Metro!';
-        } else if (choices.ride && choices.ride.includes('Bus')) {
-          rideIcon.textContent = '🚌👯‍♀️';
-          rideText.textContent = 'Anime besties enjoying the window seats on the Bus!';
-        } else {
-          rideIcon.textContent = '🛵💨👧👧';
-          rideText.textContent = 'Anime besties zooming together on the Scooter!';
-        }
-      }
-
-      if (step === 12) {
-        const summary = document.getElementById('final-summary');
-        summary.innerHTML = `
-          <li><b>📅 Date:</b> ${choices.date || 'Selected Day'}</li>
-          <li><b>🎈 Main Vibe:</b> ${choices.activity || 'Surprise'}</li>
-          <li><b>🚀 Travel:</b> ${choices.ride || 'Metro/Scooter'}</li>
-          <li><b>🍳 Breakfast:</b> ${choices.breakfast || 'Yummy food'}</li>
-          <li><b>🍱 Lunch:</b> ${choices.lunch || 'Princess Choice'}</li>
-          <li><b>🍰 Evening Snacks:</b> ${choices.snacks || 'Tea & Treats'}</li>
-        `;
-        renderShareLink();
-      }
-    }
-
-    const calendar = document.getElementById('calendar');
-    if (calendar) {
-      for (let i = 1; i <= 30; i++) {
-        const day = document.createElement('div');
-        day.className = 'calendar-day';
-        day.textContent = i;
-        day.onclick = () => {
-          selectOption('date', `Day ${i} of this month 🗓️`);
-          nextStep(3);
-        };
-        calendar.appendChild(day);
-      }
-    }
-
-    async function saveResponse() {
-      const statusEl = document.getElementById('status');
-      const personName = document.getElementById('personName')?.value || 'Guest';
-
-      if (!choices.date || !choices.activity || !choices.ride || !choices.breakfast || !choices.lunch || !choices.snacks) {
-        statusEl.textContent = 'Please complete all the date choices first.';
-        statusEl.classList.add('error');
-        return;
-      }
-
-      statusEl.textContent = 'Saving your reply...';
-      statusEl.classList.remove('error');
-
-      try {
-        const responseData = {
-          link_id: linkId,
-          person_name: personName,
-          date: choices.date,
-          activity: choices.activity,
-          ride: choices.ride,
-          breakfast: choices.breakfast,
-          lunch: choices.lunch,
-          snacks: choices.snacks,
-          created_at: new Date().toISOString(),
-          reply_summary: JSON.stringify({
-            date: choices.date,
-            activity: choices.activity,
-            ride: choices.ride,
-            breakfast: choices.breakfast,
-            lunch: choices.lunch,
-            snacks: choices.snacks,
-          })
-        };
-
-        // LocalStorage fallback (works without backend)
-        localStorage.setItem(`response-${linkId}`, JSON.stringify(responseData));
-
-        statusEl.textContent = 'Your reply has been saved! 💖';
-        statusEl.classList.remove('error');
-      } catch (error) {
-        console.error(error);
-        statusEl.textContent = 'Something went wrong while saving the reply.';
-        statusEl.classList.add('error');
-      }
-    }
-
-    document.getElementById('save-response-btn')?.addEventListener('click', saveResponse);
-    renderShareLink();
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
